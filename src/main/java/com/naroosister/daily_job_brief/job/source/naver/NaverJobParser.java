@@ -1,5 +1,6 @@
-package com.naroosister.daily_job_brief.job;
+package com.naroosister.daily_job_brief.job.source.naver;
 
+import com.naroosister.daily_job_brief.job.JobPosting;
 import java.io.IOException;
 import java.text.Normalizer;
 import java.util.ArrayList;

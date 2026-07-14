@@ -21,7 +21,7 @@ public class SentJobTracker {
 		// 같은 공고라도 구독자마다 발송 여부가 다르므로 구독자 ID 기준으로 이력을 조회한다.
 		Set<String> sentJobKeys = sentJobKeys(state, subscriber);
 		return postings.stream()
-				.filter(posting -> !sentJobKeys.contains(jobKey(posting)))
+				.filter(posting -> !wasAlreadySent(sentJobKeys, jobKey(posting)))
 				.toList();
 	}
 
@@ -43,6 +43,11 @@ public class SentJobTracker {
 	String jobKey(JobPosting posting) {
 		// 회사가 달라도 공고 ID가 겹칠 수 있어 company:id 형태로 중복 키를 만든다.
 		return posting.company() + ":" + posting.id();
+	}
+
+	private boolean wasAlreadySent(Set<String> sentJobKeys, String jobKey) {
+		return sentJobKeys.stream()
+				.anyMatch(sentJobKey -> sentJobKey.equals(jobKey) || sentJobKey.startsWith(jobKey + "/"));
 	}
 
 	private Set<String> sentJobKeys(SentJobState state, Subscriber subscriber) {

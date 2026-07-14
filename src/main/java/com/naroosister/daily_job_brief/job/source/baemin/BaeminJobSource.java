@@ -1,11 +1,10 @@
-package com.naroosister.daily_job_brief.job;
+package com.naroosister.daily_job_brief.job.source.baemin;
 
+import com.naroosister.daily_job_brief.job.JobPosting;
+import com.naroosister.daily_job_brief.job.JobSource;
+import com.naroosister.daily_job_brief.job.http.JobHttpClient;
 import java.io.IOException;
 import java.net.URI;
-import java.net.http.HttpClient;
-import java.net.http.HttpRequest;
-import java.net.http.HttpResponse;
-import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
 import org.springframework.stereotype.Component;
@@ -17,7 +16,7 @@ public class BaeminJobSource implements JobSource {
 	private static final String JOB_LIST_URL = "https://career.woowahan.com/w1/recruits";
 	private static final int PAGE_SIZE = 100;
 
-	private final HttpClient httpClient;
+	private final JobHttpClient httpClient;
 	private final BaeminJobParser parser;
 
 	public BaeminJobSource() {
@@ -25,10 +24,10 @@ public class BaeminJobSource implements JobSource {
 	}
 
 	BaeminJobSource(BaeminJobParser parser) {
-		this(HttpClient.newHttpClient(), parser);
+		this(new JobHttpClient(), parser);
 	}
 
-	BaeminJobSource(HttpClient httpClient, BaeminJobParser parser) {
+	BaeminJobSource(JobHttpClient httpClient, BaeminJobParser parser) {
 		this.httpClient = httpClient;
 		this.parser = parser;
 	}
@@ -54,18 +53,7 @@ public class BaeminJobSource implements JobSource {
 	}
 
 	private byte[] fetch(int page) throws IOException, InterruptedException {
-		HttpRequest request = HttpRequest.newBuilder(jobsUri(page))
-				.timeout(Duration.ofSeconds(20))
-				.header("Accept", "application/json")
-				.GET()
-				.build();
-		HttpResponse<byte[]> response = httpClient.send(request, HttpResponse.BodyHandlers.ofByteArray());
-
-		if (response.statusCode() < 200 || response.statusCode() >= 300) {
-			throw new IOException("Failed to fetch Baemin jobs. status=" + response.statusCode());
-		}
-
-		return response.body();
+		return httpClient.get(jobsUri(page), COMPANY, JobHttpClient.ACCEPT_JSON);
 	}
 
 	private URI jobsUri(int page) {

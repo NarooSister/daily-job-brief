@@ -1,7 +1,8 @@
-package com.naroosister.daily_job_brief.job;
+package com.naroosister.daily_job_brief.job.source.daangn;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import com.naroosister.daily_job_brief.job.JobPosting;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 import org.junit.jupiter.api.Test;

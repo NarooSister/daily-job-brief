@@ -1,5 +1,6 @@
-package com.naroosister.daily_job_brief.job;
+package com.naroosister.daily_job_brief.job.source.daangn;
 
+import com.naroosister.daily_job_brief.job.JobPosting;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.net.URI;

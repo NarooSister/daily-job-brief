@@ -39,6 +39,26 @@ class SentJobTrackerTest {
 	}
 
 	@Test
+	void treatsLegacyPathStyleJobKeysAsAlreadySent() {
+		Subscriber subscriber = new Subscriber("subscriber-a", "subscriber-a@example.test", List.of("SRE"));
+		JobPosting posting = new JobPosting(
+				"8018258",
+				"COUPANG",
+				"Coupang",
+				"Staff Site Reliability Engineer, Tech Infra",
+				"https://www.coupang.jobs/en/jobs/8018258/staff-site-reliability-engineer-tech-infra/?gh_jid=8018258",
+				"Seoul"
+		);
+		SentJobState state = new SentJobState(
+				java.util.Map.of("subscriber-a", List.of("COUPANG:8018258/staff-site-reliability-engineer-tech-infra"))
+		);
+
+		List<JobPosting> unsent = tracker.withoutAlreadySent(state, subscriber, List.of(posting));
+
+		assertThat(unsent).isEmpty();
+	}
+
+	@Test
 	void marksSentJobsPerSubscriber() {
 		Subscriber subscriber = new Subscriber("subscriber-a", "subscriber-a@example.test", List.of("Software Engineer"));
 		JobPosting posting = new JobPosting("1", "DAANGN", "당근", "Software Engineer, Backend", "https://example.com/1", "Korea");
