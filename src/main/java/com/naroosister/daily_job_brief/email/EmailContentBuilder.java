@@ -68,7 +68,7 @@ public class EmailContentBuilder {
 			html.append("<li>");
 			html.append("<strong>").append(escape(failure.company())).append("</strong>");
 			html.append(" - ");
-			html.append(escape(failure.errorMessage()));
+			html.append(escape(failure.errorSummary()));
 			html.append("</li>");
 		}
 		html.append("</ul>");

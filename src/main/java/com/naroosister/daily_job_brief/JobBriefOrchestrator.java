@@ -75,7 +75,10 @@ public class JobBriefOrchestrator {
 			if (report.success()) {
 				log.info("Fetched jobs: company={}, count={}", report.company(), report.fetchedCount());
 			} else {
-				log.warn("Failed to fetch jobs: company={}, error={}", report.company(), report.errorMessage());
+				log.warn("Failed to fetch jobs: company={}, error={}",
+						report.company(),
+						report.errorSummary(),
+						report.exception());
 			}
 		}
 	}

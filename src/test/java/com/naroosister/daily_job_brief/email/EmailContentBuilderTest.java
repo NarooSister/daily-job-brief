@@ -77,6 +77,20 @@ class EmailContentBuilderTest {
 		assertThat(message.htmlBody())
 				.contains("<h1>Job source failures</h1>")
 				.contains("DAANGN")
+				.contains("java.lang.RuntimeException")
 				.contains("bad &lt;html&gt;");
+	}
+
+	@Test
+	void failureAlertFallsBackToCauseMessage() {
+		EmailMessage message = builder.buildFailureAlert(
+				"alerts@example.test",
+				List.of(SourceExecutionReport.failure("LINE", new RuntimeException(new IllegalStateException("nested error"))))
+		);
+
+		assertThat(message.htmlBody())
+				.contains("LINE")
+				.contains("java.lang.RuntimeException")
+				.contains("nested error");
 	}
 }
