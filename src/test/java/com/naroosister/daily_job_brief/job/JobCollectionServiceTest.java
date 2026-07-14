@@ -26,9 +26,9 @@ class JobCollectionServiceTest {
 		JobCollectionResult result = service.collect();
 
 		assertThat(result.postings()).containsExactly(daangn, toss);
-		assertThat(result.reports())
-				.extracting(SourceExecutionReport::company)
-				.containsExactly("DAANGN", "TOSS");
+		assertThat(result.reports()).hasSize(2);
+		assertThat(result.reports().get(0).company()).isEqualTo("DAANGN");
+		assertThat(result.reports().get(1).company()).isEqualTo("TOSS");
 	}
 
 	@Test
@@ -45,9 +45,8 @@ class JobCollectionServiceTest {
 		JobCollectionResult result = service.collect();
 
 		assertThat(result.postings()).containsExactly(daangn);
-		assertThat(result.reports())
-				.extracting(SourceExecutionReport::company)
-				.containsExactly("DAANGN");
+		assertThat(result.reports()).hasSize(1);
+		assertThat(result.reports().getFirst().company()).isEqualTo("DAANGN");
 	}
 
 	@Test
@@ -74,7 +73,14 @@ class JobCollectionServiceTest {
 	}
 
 	private static JobPosting posting(String id, String company) {
-		return new JobPosting(id, company, company + " Backend Engineer", "https://example.com/" + company + "/" + id, "Korea");
+		return new JobPosting(
+				id,
+				company,
+				company + " Careers",
+				company + " Backend Engineer",
+				"https://example.com/" + company + "/" + id,
+				"Korea"
+		);
 	}
 
 	private record SuccessfulSource(String company, List<JobPosting> postings) implements JobSource {

@@ -37,7 +37,7 @@ public class EmailContentBuilder {
 
 	private void appendPosting(StringBuilder html, JobPosting posting) {
 		html.append("<li>");
-		html.append("<strong>").append(escape(posting.company())).append("</strong>");
+		html.append("<strong>").append(escape(posting.companyDisplayName())).append("</strong>");
 		html.append(" - ");
 		html.append("<a href=\"").append(escapeAttribute(posting.url())).append("\">")
 				.append(escape(posting.title()))

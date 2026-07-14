@@ -16,7 +16,8 @@ import org.springframework.stereotype.Component;
 class DaangnJobParser {
 
 	private static final String COMPANY = "DAANGN";
-	private static final String LOCATION = "Korea";
+	private static final String COMPANY_DISPLAY_NAME = "당근";
+	private static final String LOCATION = "";
 	private static final URI JOBS_URI = URI.create("https://careers.daangn.com/jobs/");
 	private static final Pattern JOB_ID_PATTERN = Pattern.compile("/jobs/role/(\\d+)/");
 	// 당근 채용 목록의 링크 텍스트 끝에 붙는 경력/고용형태 라벨은 알림 제목에서 제거한다.
@@ -43,7 +44,7 @@ class DaangnJobParser {
 			String title = title(link.text());
 
 			if (!id.isBlank() && !title.isBlank()) {
-				postings.add(new JobPosting(id, COMPANY, title, url, LOCATION));
+				postings.add(new JobPosting(id, COMPANY, COMPANY_DISPLAY_NAME, title, url, LOCATION));
 			}
 		}
 

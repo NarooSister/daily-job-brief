@@ -66,6 +66,7 @@ jobs:
         run: ./gradlew bootRun
 
       - name: Persist state
+        if: ${{ always() }}
         shell: bash
         run: |
           cp state/sent-jobs.json state-repo/sent-jobs.json

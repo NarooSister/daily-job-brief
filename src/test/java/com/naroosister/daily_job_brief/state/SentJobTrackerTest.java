@@ -14,8 +14,8 @@ class SentJobTrackerTest {
 	@Test
 	void filtersAlreadySentJobsPerSubscriber() {
 		Subscriber subscriber = new Subscriber("subscriber-a", "subscriber-a@example.test", List.of("Software Engineer"));
-		JobPosting alreadySent = new JobPosting("1", "DAANGN", "Software Engineer, Backend", "https://example.com/1", "Korea");
-		JobPosting newPosting = new JobPosting("2", "DAANGN", "Software Engineer, Frontend", "https://example.com/2", "Korea");
+		JobPosting alreadySent = new JobPosting("1", "DAANGN", "당근", "Software Engineer, Backend", "https://example.com/1", "Korea");
+		JobPosting newPosting = new JobPosting("2", "DAANGN", "당근", "Software Engineer, Frontend", "https://example.com/2", "Korea");
 		SentJobState state = new SentJobState(
 				java.util.Map.of("subscriber-a", List.of("DAANGN:1"))
 		);
@@ -28,7 +28,7 @@ class SentJobTrackerTest {
 	@Test
 	void keepsSentJobsSeparateBySubscriber() {
 		Subscriber subscriber = new Subscriber("subscriber-b", "subscriber-b@example.test", List.of("Software Engineer"));
-		JobPosting posting = new JobPosting("1", "DAANGN", "Software Engineer, Backend", "https://example.com/1", "Korea");
+		JobPosting posting = new JobPosting("1", "DAANGN", "당근", "Software Engineer, Backend", "https://example.com/1", "Korea");
 		SentJobState state = new SentJobState(
 				java.util.Map.of("subscriber-a", List.of("DAANGN:1"))
 		);
@@ -41,7 +41,7 @@ class SentJobTrackerTest {
 	@Test
 	void marksSentJobsPerSubscriber() {
 		Subscriber subscriber = new Subscriber("subscriber-a", "subscriber-a@example.test", List.of("Software Engineer"));
-		JobPosting posting = new JobPosting("1", "DAANGN", "Software Engineer, Backend", "https://example.com/1", "Korea");
+		JobPosting posting = new JobPosting("1", "DAANGN", "당근", "Software Engineer, Backend", "https://example.com/1", "Korea");
 
 		SentJobState state = tracker.markSent(SentJobState.empty(), subscriber, List.of(posting));
 
@@ -51,7 +51,7 @@ class SentJobTrackerTest {
 	@Test
 	void doesNotDuplicateSentJobKeys() {
 		Subscriber subscriber = new Subscriber("subscriber-a", "subscriber-a@example.test", List.of("Software Engineer"));
-		JobPosting posting = new JobPosting("1", "DAANGN", "Software Engineer, Backend", "https://example.com/1", "Korea");
+		JobPosting posting = new JobPosting("1", "DAANGN", "당근", "Software Engineer, Backend", "https://example.com/1", "Korea");
 		SentJobState existingState = new SentJobState(
 				java.util.Map.of("subscriber-a", List.of("DAANGN:1"))
 		);

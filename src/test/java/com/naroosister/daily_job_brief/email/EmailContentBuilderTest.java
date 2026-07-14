@@ -21,6 +21,7 @@ class EmailContentBuilderTest {
 		JobPosting posting = new JobPosting(
 				"1",
 				"DAANGN",
+				"당근",
 				"Software Engineer, Backend",
 				"https://careers.daangn.com/jobs/role/1/",
 				"Korea"
@@ -32,8 +33,10 @@ class EmailContentBuilderTest {
 		assertThat(message.subject()).isEqualTo("[daily-job-brief] New jobs: 1");
 		assertThat(message.htmlBody())
 				.contains("<h1>New job postings</h1>")
+				.contains("<strong>당근</strong>")
 				.contains("Software Engineer, Backend")
-				.contains("https://careers.daangn.com/jobs/role/1/");
+				.contains("https://careers.daangn.com/jobs/role/1/")
+				.doesNotContain("<strong>DAANGN</strong>");
 	}
 
 	@Test
@@ -46,6 +49,7 @@ class EmailContentBuilderTest {
 		JobPosting posting = new JobPosting(
 				"1",
 				"DAANGN",
+				"당근 <Company>",
 				"Backend <Java> & Spring",
 				"https://example.com/jobs?team=\"backend\"",
 				"Korea"
@@ -54,6 +58,7 @@ class EmailContentBuilderTest {
 		EmailMessage message = builder.build(subscriber, List.of(posting));
 
 		assertThat(message.htmlBody())
+				.contains("당근 &lt;Company&gt;")
 				.contains("Backend &lt;Java&gt;")
 				.contains("Backend &lt;Java&gt; &amp; Spring")
 				.contains("https://example.com/jobs?team=&quot;backend&quot;");

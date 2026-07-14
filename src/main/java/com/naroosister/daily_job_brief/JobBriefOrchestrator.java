@@ -60,9 +60,8 @@ public class JobBriefOrchestrator {
 
 		JobCollectionResult collectionResult = jobCollectionService.collect();
 		logCollectionReports(collectionResult.reports());
-		state = notifySubscribers(settings, state, collectionResult.postings());
+		notifySubscribers(settings, state, collectionResult.postings());
 
-		stateStore.save(state);
 		log.info("Daily job brief finished");
 	}
 
@@ -76,11 +75,11 @@ public class JobBriefOrchestrator {
 		}
 	}
 
-	private SentJobState notifySubscribers(
+	private void notifySubscribers(
 			SubscriberSettings settings,
 			SentJobState state,
 			List<JobPosting> allPostings
-	) {
+	) throws IOException {
 		SentJobState updatedState = state;
 		for (Subscriber subscriber : settings.subscribers()) {
 			List<JobPosting> matches = jobMatcher.match(subscriber, allPostings);
@@ -91,9 +90,9 @@ public class JobBriefOrchestrator {
 				EmailMessage message = emailContentBuilder.build(subscriber, newMatches);
 				emailSender.send(message);
 				updatedState = sentJobTracker.markSent(updatedState, subscriber, newMatches);
+				stateStore.save(updatedState);
 			}
 		}
-		return updatedState;
 	}
 
 	private void logMatches(

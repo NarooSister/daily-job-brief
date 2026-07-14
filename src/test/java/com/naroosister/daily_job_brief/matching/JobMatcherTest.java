@@ -18,9 +18,9 @@ class JobMatcherTest {
 				"subscriber-a@example.test",
 				List.of("DevOps", "SRE", "Platform Engineer")
 		);
-		JobPosting sre = new JobPosting("1", "DAANGN", "SRE Engineer", "https://example.com/1", "Korea");
-		JobPosting platform = new JobPosting("2", "DAANGN", "Senior Platform Engineer", "https://example.com/2", "Korea");
-		JobPosting backend = new JobPosting("3", "DAANGN", "Backend Engineer", "https://example.com/3", "Korea");
+		JobPosting sre = new JobPosting("1", "DAANGN", "당근", "SRE Engineer", "https://example.com/1", "Korea");
+		JobPosting platform = new JobPosting("2", "DAANGN", "당근", "Senior Platform Engineer", "https://example.com/2", "Korea");
+		JobPosting backend = new JobPosting("3", "DAANGN", "당근", "Backend Engineer", "https://example.com/3", "Korea");
 
 		List<JobPosting> matches = jobMatcher.match(subscriber, List.of(sre, platform, backend));
 
@@ -34,7 +34,7 @@ class JobMatcherTest {
 				"subscriber-a@example.test",
 				List.of("DevOps")
 		);
-		JobPosting posting = new JobPosting("1", "DAANGN", "Backend Engineer", "https://example.com/1", "Korea");
+		JobPosting posting = new JobPosting("1", "DAANGN", "당근", "Backend Engineer", "https://example.com/1", "Korea");
 
 		List<JobPosting> matches = jobMatcher.match(subscriber, List.of(posting));
 
@@ -48,7 +48,7 @@ class JobMatcherTest {
 				"subscriber-a@example.test",
 				List.of(" ", "")
 		);
-		JobPosting posting = new JobPosting("1", "DAANGN", "Backend Engineer", "https://example.com/1", "Korea");
+		JobPosting posting = new JobPosting("1", "DAANGN", "당근", "Backend Engineer", "https://example.com/1", "Korea");
 
 		List<JobPosting> matches = jobMatcher.match(subscriber, List.of(posting));
 
@@ -62,7 +62,7 @@ class JobMatcherTest {
 				"subscriber-b@example.test",
 				List.of("spring")
 		);
-		JobPosting posting = new JobPosting("1", "DAANGN", "Java Spring Backend Engineer", "https://example.com/1", "Korea");
+		JobPosting posting = new JobPosting("1", "DAANGN", "당근", "Java Spring Backend Engineer", "https://example.com/1", "Korea");
 
 		List<JobPosting> matches = jobMatcher.match(subscriber, List.of(posting));
 

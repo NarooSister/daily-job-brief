@@ -25,9 +25,10 @@ class DaangnJobSourceTest {
 		assertThat(postings).containsExactly(new JobPosting(
 				"5004587003",
 				"DAANGN",
+				"당근",
 				"Network Engineer - 인프라(네트워크, Cloud)",
 				"https://careers.daangn.com/jobs/role/5004587003/",
-				"Korea"
+				""
 		));
 	}
 
@@ -49,8 +50,11 @@ class DaangnJobSourceTest {
 
 		List<JobPosting> postings = source.parse(html);
 
-		assertThat(postings).extracting(JobPosting::title)
-				.containsExactly("Network Engineer - 인프라(네트워크, Cloud)");
+		assertThat(postings).singleElement()
+				.satisfies(posting -> {
+					assertThat(posting.title()).isEqualTo("Network Engineer - 인프라(네트워크, Cloud)");
+					assertThat(posting.companyDisplayName()).isEqualTo("당근");
+				});
 	}
 
 	@Test
