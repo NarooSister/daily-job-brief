@@ -1,0 +1,36 @@
+spring:
+  application:
+    name: daily-job-brief
+  main:
+    banner-mode: off
+    log-startup-info: false
+  mail:
+    host: ${MAIL_HOST:}
+    port: ${MAIL_PORT:587}
+    username: ${MAIL_USERNAME:}
+    password: ${MAIL_PASSWORD:}
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+
+logging:
+  pattern:
+    console: "%msg%n"
+  level:
+    root: WARN
+    com.naroosister.daily_job_brief: INFO
+    org.springframework.boot.SpringApplication: WARN
+    org.springframework.boot.autoconfigure: WARN
+    org.springframework.boot.availability: WARN
+
+daily-job-brief:
+  subscribers-path: config/subscribers.json
+  state-path: state/sent-jobs.json
+  sources:
+    enabled: []
+    disabled: []
+  mail:
+    enabled: false

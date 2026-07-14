@@ -1,0 +1,77 @@
+name: Daily Job Brief
+
+on:
+  workflow_dispatch:
+  schedule:
+    # 09:00 Asia/Seoul
+    - cron: "0 0 * * *"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: daily-job-brief
+  cancel-in-progress: false
+
+jobs:
+  run:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout app repository
+        uses: actions/checkout@v6
+
+      - name: Checkout private state repository
+        uses: actions/checkout@v6
+        with:
+          repository: ${{ secrets.STATE_REPO }}
+          token: ${{ secrets.STATE_REPO_TOKEN }}
+          path: state-repo
+
+      - name: Set up Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "25"
+          cache: gradle
+
+      - name: Make Gradle wrapper executable
+        run: chmod +x gradlew
+
+      - name: Prepare runtime files
+        shell: bash
+        env:
+          SUBSCRIBERS_JSON: ${{ secrets.SUBSCRIBERS_JSON }}
+        run: |
+          mkdir -p config state
+          printf '%s' "$SUBSCRIBERS_JSON" > config/subscribers.json
+
+          if [ -f state-repo/sent-jobs.json ]; then
+            cp state-repo/sent-jobs.json state/sent-jobs.json
+          else
+            printf '{"subscribers":{}}' > state/sent-jobs.json
+          fi
+
+      - name: Test
+        run: ./gradlew test
+
+      - name: Run daily job brief
+        env:
+          DAILY_JOB_BRIEF_MAIL_ENABLED: "true"
+          MAIL_HOST: ${{ secrets.MAIL_HOST }}
+          MAIL_PORT: ${{ secrets.MAIL_PORT || '587' }}
+          MAIL_USERNAME: ${{ secrets.MAIL_USERNAME }}
+          MAIL_PASSWORD: ${{ secrets.MAIL_PASSWORD }}
+          DAILY_JOB_BRIEF_MAIL_FROM: ${{ secrets.MAIL_FROM || secrets.MAIL_USERNAME }}
+        run: ./gradlew bootRun
+
+      - name: Persist state
+        shell: bash
+        run: |
+          cp state/sent-jobs.json state-repo/sent-jobs.json
+          cd state-repo
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add sent-jobs.json
+          git diff --cached --quiet || git commit -m "Update sent job state"
+          git push

@@ -1,0 +1,22 @@
+{
+  "subscribers": [
+    {
+      "id": "user1",
+      "email": "user1@example.com",
+      "keywords": [
+        "DevOps",
+        "SRE",
+        "Platform Engineer"
+      ]
+    },
+    {
+      "id": "user2",
+      "email": "user2@example.com",
+      "keywords": [
+        "Backend",
+        "Java",
+        "Spring"
+      ]
+    }
+  ]
+}
