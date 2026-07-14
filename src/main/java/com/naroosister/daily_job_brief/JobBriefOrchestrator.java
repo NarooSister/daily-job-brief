@@ -1,5 +1,6 @@
 package com.naroosister.daily_job_brief;
 
+import com.naroosister.daily_job_brief.config.DailyJobBriefProperties;
 import com.naroosister.daily_job_brief.email.EmailContentBuilder;
 import com.naroosister.daily_job_brief.email.EmailMessage;
 import com.naroosister.daily_job_brief.email.EmailSender;
@@ -32,6 +33,7 @@ public class JobBriefOrchestrator {
 	private final SentJobTracker sentJobTracker;
 	private final EmailContentBuilder emailContentBuilder;
 	private final EmailSender emailSender;
+	private final DailyJobBriefProperties properties;
 
 	public JobBriefOrchestrator(
 			SubscriberSettingsLoader subscriberSettingsLoader,
@@ -40,7 +42,8 @@ public class JobBriefOrchestrator {
 			SentJobStateStore stateStore,
 			SentJobTracker sentJobTracker,
 			EmailContentBuilder emailContentBuilder,
-			EmailSender emailSender
+			EmailSender emailSender,
+			DailyJobBriefProperties properties
 	) {
 		this.subscriberSettingsLoader = subscriberSettingsLoader;
 		this.jobCollectionService = jobCollectionService;
@@ -49,6 +52,7 @@ public class JobBriefOrchestrator {
 		this.sentJobTracker = sentJobTracker;
 		this.emailContentBuilder = emailContentBuilder;
 		this.emailSender = emailSender;
+		this.properties = properties;
 	}
 
 	public void run() throws IOException {
@@ -60,6 +64,7 @@ public class JobBriefOrchestrator {
 
 		JobCollectionResult collectionResult = jobCollectionService.collect();
 		logCollectionReports(collectionResult.reports());
+		notifyCollectionFailures(collectionResult.reports());
 		notifySubscribers(settings, state, collectionResult.postings());
 
 		log.info("Daily job brief finished");
@@ -72,6 +77,24 @@ public class JobBriefOrchestrator {
 			} else {
 				log.warn("Failed to fetch jobs: company={}, error={}", report.company(), report.errorMessage());
 			}
+		}
+	}
+
+	private void notifyCollectionFailures(List<SourceExecutionReport> reports) {
+		List<SourceExecutionReport> failures = reports.stream()
+				.filter(report -> !report.success())
+				.toList();
+		String alertTo = properties.mail().alertTo();
+
+		if (failures.isEmpty() || alertTo == null) {
+			return;
+		}
+
+		try {
+			EmailMessage message = emailContentBuilder.buildFailureAlert(alertTo, failures);
+			emailSender.send(message);
+		} catch (RuntimeException exception) {
+			log.warn("Failed to send collection failure alert: error={}", exception.getMessage());
 		}
 	}
 

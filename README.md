@@ -7,6 +7,7 @@
 - 회사별 공식 채용 목록 수집
 - 공고 제목 기준 키워드 매칭
 - 구독자별 신규 공고만 이메일 발송
+- 회사별 채용 수집 실패 시 운영자에게 이메일 알림
 - 구독자별 발송 이력 JSON state 저장
 - GitHub Actions에서 매일 09:00 KST 실행
 
@@ -62,6 +63,7 @@ public 앱 repo에는 아래 Secrets를 등록합니다.
 | `MAIL_PASSWORD` | SMTP 비밀번호 또는 앱 비밀번호 |
 | `MAIL_PORT` | 선택. 기본값 `587` |
 | `MAIL_FROM` | 선택. 기본값 `MAIL_USERNAME` |
+| `MAIL_ALERT_TO` | 선택. 채용 수집 실패 알림을 받을 운영자 이메일 |
 
 private state repo는 private으로 만들고, `README.md` 하나 이상을 넣어 초기화합니다. `sent-jobs.json`은 첫 실행 때 자동 생성됩니다.
 

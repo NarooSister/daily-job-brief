@@ -34,3 +34,4 @@ daily-job-brief:
     disabled: []
   mail:
     enabled: false
+    alert-to: ${MAIL_ALERT_TO:}

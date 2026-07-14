@@ -15,6 +15,7 @@ import com.naroosister.daily_job_brief.state.SentJobState;
 import com.naroosister.daily_job_brief.state.SentJobStateStore;
 import com.naroosister.daily_job_brief.state.SentJobTracker;
 import com.naroosister.daily_job_brief.subscriber.SubscriberSettingsLoader;
+import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
@@ -84,20 +85,57 @@ class JobBriefOrchestratorTest {
 		assertThat(state.subscribers()).doesNotContainKey("subscriber-b");
 	}
 
+	@Test
+	void sendsCollectionFailureAlertToConfiguredAddress() throws Exception {
+		Path subscribersPath = subscribers("""
+				{
+				  "subscribers": [
+				    {
+				      "id": "subscriber-a",
+				      "email": "subscriber-a@example.test",
+				      "keywords": ["Backend"]
+				    }
+				  ]
+				}
+				""");
+		Path statePath = tempDir.resolve("sent-jobs.json");
+		CapturingEmailSender emailSender = new CapturingEmailSender();
+		DailyJobBriefProperties properties = properties(subscribersPath, statePath, "alerts@example.test");
+
+		orchestrator(properties, List.of(new FailingJobSource()), emailSender).run();
+
+		assertThat(emailSender.messages).hasSize(1);
+		EmailMessage message = emailSender.messages.getFirst();
+		assertThat(message.to()).isEqualTo("alerts@example.test");
+		assertThat(message.subject()).isEqualTo("[daily-job-brief] Job source failures: 1");
+		assertThat(message.htmlBody())
+				.contains("DAANGN")
+				.contains("source failed");
+	}
+
 	private JobBriefOrchestrator orchestrator(
 			Path subscribersPath,
 			Path statePath,
 			EmailSender emailSender
 	) {
 		DailyJobBriefProperties properties = properties(subscribersPath, statePath);
+		return orchestrator(properties, List.of(new StaticJobSource()), emailSender);
+	}
+
+	private JobBriefOrchestrator orchestrator(
+			DailyJobBriefProperties properties,
+			List<JobSource> jobSources,
+			EmailSender emailSender
+	) {
 		return new JobBriefOrchestrator(
 				new SubscriberSettingsLoader(objectMapper, properties),
-				new JobCollectionService(List.of(new StaticJobSource()), properties),
+				new JobCollectionService(jobSources, properties),
 				new JobMatcher(),
-				stateStore(statePath),
+				stateStore(properties.stateFile()),
 				new SentJobTracker(),
 				new EmailContentBuilder(),
-				emailSender
+				emailSender,
+				properties
 		);
 	}
 
@@ -106,10 +144,14 @@ class JobBriefOrchestratorTest {
 	}
 
 	private DailyJobBriefProperties properties(Path subscribersPath, Path statePath) {
+		return properties(subscribersPath, statePath, null);
+	}
+
+	private DailyJobBriefProperties properties(Path subscribersPath, Path statePath, String alertTo) {
 		return new DailyJobBriefProperties(
 				subscribersPath.toString(),
 				statePath.toString(),
-				null,
+				new DailyJobBriefProperties.Mail(false, null, alertTo),
 				new DailyJobBriefProperties.Sources(List.of(), List.of())
 		);
 	}
@@ -158,6 +200,19 @@ class JobBriefOrchestratorTest {
 					"https://example.com/jobs/1",
 					"Korea"
 			));
+		}
+	}
+
+	private static class FailingJobSource implements JobSource {
+
+		@Override
+		public String company() {
+			return "DAANGN";
+		}
+
+		@Override
+		public List<JobPosting> fetch() throws IOException {
+			throw new IOException("source failed");
 		}
 	}
 }

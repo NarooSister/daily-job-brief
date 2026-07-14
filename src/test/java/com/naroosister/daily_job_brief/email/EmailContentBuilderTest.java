@@ -3,6 +3,7 @@ package com.naroosister.daily_job_brief.email;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import com.naroosister.daily_job_brief.job.JobPosting;
+import com.naroosister.daily_job_brief.job.SourceExecutionReport;
 import com.naroosister.daily_job_brief.subscriber.Subscriber;
 import java.util.List;
 import org.junit.jupiter.api.Test;
@@ -62,5 +63,20 @@ class EmailContentBuilderTest {
 				.contains("Backend &lt;Java&gt;")
 				.contains("Backend &lt;Java&gt; &amp; Spring")
 				.contains("https://example.com/jobs?team=&quot;backend&quot;");
+	}
+
+	@Test
+	void buildsFailureAlertEmail() {
+		EmailMessage message = builder.buildFailureAlert(
+				"alerts@example.test",
+				List.of(SourceExecutionReport.failure("DAANGN", new RuntimeException("bad <html>")))
+		);
+
+		assertThat(message.to()).isEqualTo("alerts@example.test");
+		assertThat(message.subject()).isEqualTo("[daily-job-brief] Job source failures: 1");
+		assertThat(message.htmlBody())
+				.contains("<h1>Job source failures</h1>")
+				.contains("DAANGN")
+				.contains("bad &lt;html&gt;");
 	}
 }

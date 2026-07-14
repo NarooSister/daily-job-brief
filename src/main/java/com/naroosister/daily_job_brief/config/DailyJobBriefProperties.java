@@ -21,7 +21,7 @@ public record DailyJobBriefProperties(
 			statePath = "state/sent-jobs.json";
 		}
 		if (mail == null) {
-			mail = new Mail(false, null);
+			mail = new Mail(false, null, null);
 		}
 		if (sources == null) {
 			sources = new Sources(List.of(), List.of());
@@ -38,11 +38,15 @@ public record DailyJobBriefProperties(
 
 	public record Mail(
 			boolean enabled,
-			String from
+			String from,
+			String alertTo
 	) {
 		public Mail {
 			if (from != null && from.isBlank()) {
 				from = null;
+			}
+			if (alertTo != null && alertTo.isBlank()) {
+				alertTo = null;
 			}
 		}
 	}

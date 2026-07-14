@@ -1,6 +1,7 @@
 package com.naroosister.daily_job_brief.email;
 
 import com.naroosister.daily_job_brief.job.JobPosting;
+import com.naroosister.daily_job_brief.job.SourceExecutionReport;
 import com.naroosister.daily_job_brief.subscriber.Subscriber;
 import java.util.List;
 import org.springframework.stereotype.Component;
@@ -18,6 +19,19 @@ public class EmailContentBuilder {
 		html.append("</body></html>");
 
 		return new EmailMessage(subscriber.email(), subject, html.toString());
+	}
+
+	public EmailMessage buildFailureAlert(String to, List<SourceExecutionReport> failures) {
+		String subject = "[daily-job-brief] Job source failures: " + failures.size();
+		StringBuilder html = new StringBuilder();
+		html.append("<!doctype html>");
+		html.append("<html><body>");
+		html.append("<h1>Job source failures</h1>");
+		html.append("<p>Some job sources failed during collection.</p>");
+		appendFailures(html, failures);
+		html.append("</body></html>");
+
+		return new EmailMessage(to, subject, html.toString());
 	}
 
 	private void appendHeader(StringBuilder html, Subscriber subscriber) {
@@ -48,7 +62,22 @@ public class EmailContentBuilder {
 		html.append("</li>");
 	}
 
+	private void appendFailures(StringBuilder html, List<SourceExecutionReport> failures) {
+		html.append("<ul>");
+		for (SourceExecutionReport failure : failures) {
+			html.append("<li>");
+			html.append("<strong>").append(escape(failure.company())).append("</strong>");
+			html.append(" - ");
+			html.append(escape(failure.errorMessage()));
+			html.append("</li>");
+		}
+		html.append("</ul>");
+	}
+
 	private String escape(String value) {
+		if (value == null) {
+			return "";
+		}
 		return value
 				.replace("&", "&amp;")
 				.replace("<", "&lt;")
