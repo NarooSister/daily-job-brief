@@ -41,7 +41,25 @@ public class JobHttpClient {
 				.GET();
 		headers.forEach(request::header);
 
-		HttpResponse<byte[]> response = httpClient.send(request.build(), HttpResponse.BodyHandlers.ofByteArray());
+		return send(request.build(), company);
+	}
+
+	public byte[] post(
+			URI uri,
+			String company,
+			byte[] body,
+			Map<String, String> headers
+	) throws IOException, InterruptedException {
+		HttpRequest.Builder request = HttpRequest.newBuilder(uri)
+				.timeout(REQUEST_TIMEOUT)
+				.POST(HttpRequest.BodyPublishers.ofByteArray(body));
+		headers.forEach(request::header);
+
+		return send(request.build(), company);
+	}
+
+	private byte[] send(HttpRequest request, String company) throws IOException, InterruptedException {
+		HttpResponse<byte[]> response = httpClient.send(request, HttpResponse.BodyHandlers.ofByteArray());
 		if (response.statusCode() < 200 || response.statusCode() >= 300) {
 			throw new IOException("Failed to fetch " + company + " jobs. status=" + response.statusCode());
 		}
